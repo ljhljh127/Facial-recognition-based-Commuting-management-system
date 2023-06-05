@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>홍익Company사원</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    .container {
+      text-align: center;
+      background-color: #d9f2f7;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      width: 40%;
+    }
+    .user-info {
+      margin-bottom: 30px;
+    }
+    h1 {
+      margin-bottom: 25px;
+      color: #0d0a0a;
+      font-size: px;
+    }
+    strong {
+      color: #4a4a4a;
+      font-weight: 600;
+    }
+    span {
+      font-weight: 400;
+      font-size: 16px;
+    }
+    #logoutButton {
+      display: inline-block;
+      background-color: #4a4a4a;
+      border: none;
+      color: #ffffff;
+      text-align: center;
+      font-size: 16px;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+  
+    #logoutButton:hover {
+      background-color: #333333;
+    }
+    #addFaceButton {
+        display: inline-block;
+        background-color: #4a4a4a;
+        border: none;
+        color: #ffffff;
+        text-align: center;
+        font-size: 16px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    #addFaceButton:hover {
+        background-color: #333333;
+    }
+
+#addFaceButton:hover {
+  background-color: #333333;
+}
+
+  </style>
+ <script>
+    var baseURL = "http://119.65.155.84";
+    function checkToken() {
+      var access_token_str = localStorage.getItem('access_token');
+      if (!access_token_str) {
+        alert('로그인이 필요합니다.');
+        window.location.href = baseURL;
+      }
+    }
+
+    function fetchUserInfo() {
+      var access_token_str = localStorage.getItem('access_token');
+      var access_token = JSON.parse(atob(access_token_str.split('.')[1]));
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", baseURL + ":8000/users/"+access_token.sub);
+      xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+      
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          var responseObj = JSON.parse(xhr.responseText);
+          document.getElementById('UserName').innerText = responseObj.UserName;
+          document.getElementById('UserBirth').innerText = responseObj.UserBirth;
+          document.getElementById('UserPhoneNumber').innerText = responseObj.UserPhoneNumber;
+          if(responseObj.UserSex=='m'){
+            document.getElementById('UserSex').innerText='남자'
+          }
+          else{
+            document.getElementById('UserSex').innerText='여자'
+          }
+          if(responseObj.FaceExist==0){
+            var addFaceButton = document.createElement('button');
+            addFaceButton.id = 'addFaceButton';
+            addFaceButton.innerHTML = '얼굴 등록하기';
+            addFaceButton.onclick = function() {
+              window.location.href = baseURL + '/add-face';
+            };
+            document.getElementById('container').appendChild(addFaceButton);
+          }
+        } else {
+          alert('사용자 정보를 가져오는데 실패하였습니다.');
+        }
+      };
+      xhr.send();
+    }
+
+    function logout() {
+      localStorage.removeItem('access_token');
+      alert('로그아웃 되었습니다.');
+      window.location.href = baseURL; 
+    }
+
+    window.onload = function(){
+        checkToken();
+        fetchUserInfo();
+    }
+  </script>
+</head>
+<body>
+  <div class="container" id="container">
+    <h1>마이페이지</h1>
+    <div class="user-info">
+      <strong>이름:</strong> <span id="UserName"></span>
+    </div>
+    <div class="user-info">
+      <strong>성별:</strong> <span id="UserSex"></span>
+    </div>
+    <div class="user-info">
+      <strong>생일</strong> <span id="UserBirth"></span>
+    </div>
+ <div class="user-info">
+      <strong>휴대전화 번호:</strong> <span id="UserPhoneNumber"></span>
+    </div>
+    <button id="logoutButton" onclick="logout()">로그아웃</button>
+  </div>
+</body>
+</html>

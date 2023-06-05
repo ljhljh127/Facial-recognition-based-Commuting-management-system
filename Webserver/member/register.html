@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>회원가입</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+    
+    .container {
+      text-align: center;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .register {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    label {
+      margin-right: 10px;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    select,
+    input[type="date"] {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+    
+    .btn-submit {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .btn-submit:hover {
+      background-color: #0056b3;
+    }
+
+  </style>
+  <script>
+    var baseURL = "http://119.65.155.84";
+
+    function validatePassword() {
+      var password = document.getElementById("UserPassword").value;
+      var confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        return false;
+      }
+
+      confirmPassword.disabled = true;
+      return true;
+    }
+
+    function sendPostRequest(event) {
+      if (validatePassword()) {
+        event.preventDefault();
+        var requestData = {
+          "UserID": document.getElementById("UserID").value,
+          "UserPassword": document.getElementById("UserPassword").value,
+          "UserName": document.getElementById("UserName").value,
+          "UserSex": document.getElementById("UserSex").value,
+          "UserBirth": document.getElementById("UserBirth").value,
+          "UserPhoneNumber": document.getElementById("UserPhoneNumber").value
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", baseURL + ":8000/users");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        //서버로부터 요청을 받았을때 응답하는 함수(콜백함수)
+        xhr.onload = function () {
+          if (xhr.status === 201) {
+            alert("회원가입 완료 로그인 해주세요.");
+            window.location.href = baseURL
+          }
+          else if(xhr.status===400){
+            alert("중복된 ID가 존재합니다. 다시 입력하세요")
+            window.location.href = baseURL + "/member/register.html"
+          }
+          else {
+            alert("회원가입 실패 다시 시도해 주세요.");
+          }
+        };
+
+        xhr.send(JSON.stringify(requestData));
+      }
+      else{
+        alert("비밀번호와 비밀번호 확인이 일치하지 않습니다.")
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>회원가입</h1>
+    <form onsubmit="sendPostRequest(event)">
+      <div class="register">
+        <label for="UserID">아이디:</label>
+        <input type="text" id="UserID" name="UserID" required>
+      </div>
+      <div class="register">
+        <label for="UserPassword">비밀번호:</label>
+        <input type="password" id="UserPassword" name="UserPassword" required>
+      </div>
+      <div class="register">
+        <label for="confirmPassword">비밀번호 확인:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+      </div>
+      <div class="register">
+        <label for="UserName">이름:</label>
+        <input type="text" id="UserName" name="UserName" required>
+      </div>
+      <div class="register">
+        <label for="UserSex">성별:</label>
+        <select id="UserSex" name="UserSex" required>
+          <option value="m">남자</option>
+          <option value="f">여자</option>
+        </select>
+      </div>
+      <div class="register">
+        <label for="UserBirth">생년월일:</label>
+        <input type="date" id="UserBirth" name="UserBirth" required>
+      </div>
+      <div class="register">
+        <label for="UserPhoneNumber">전화번호:</label>
+        <input type="text" id="UserPhoneNumber" name="UserPhoneNumber" required>
+      </div>
+      <div class="register">
+        <button class="btn-submit" type="submit">가입하기</button>
+        <button class="btn-submit" type="button" onclick="window.location.href = baseURL;">메인화면</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

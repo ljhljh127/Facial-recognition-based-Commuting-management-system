@@ -1,0 +1,8 @@
+docker run -d -p 3306:3306 --name JeongHyeonDBServer -e MYSQL_ROOT_PASSWORD=11271209 -e MYSQL_DATABASE=mydatabase -e MYSQL_CHARSET=utf8mb4 -e MYSQL_COLLATION=utf8mb4_unicode_ci mysql
+
+
+컨테이너 접속
+docker exec -it JeongHyeonDBServer mysql -u root -p11271209
+
+db 주소 반환
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' JeongHyeonDBServer

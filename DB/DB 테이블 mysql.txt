@@ -1,0 +1,70 @@
+유저 테이블
+CREATE TABLE UserTable (
+    UserID VARCHAR(50) NOT NULL,
+    UserPassword VARCHAR(255) NOT NULL,
+    UserName VARCHAR(30) NOT NULL,
+    UserSex ENUM('m', 'f') NOT NULL,
+    UserBirth DATE NOT NULL,
+    UserPhoneNumber VARCHAR(50) NOT NULL,
+    FaceExist INT NOT NULL,
+    PRIMARY KEY(UserID)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+출석 테이블
+CREATE TABLE AttendanceTable (
+    AttendanceID INT AUTO_INCREMENT PRIMARY KEY,
+    UserID VARCHAR(50) NOT NULL,
+    Date DATE NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME, 
+    FOREIGN KEY(UserID) REFERENCES UserTable(UserID) ON DELETE CASCADE
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+
+
+
+
+
+
+
+
+
+
+API 백업 혹시모름
+
+# 사용자 수정 API
+@app.put("/users/{user_id}")
+def update_user(user_id: str, user: UserUpdate, current_password: str):
+    existing_user = session.query(UserTable).filter(UserTable.UserID == user_id).first()
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="유저를 찾을 수 없습니다")
+
+    # 기존 비밀번호 확인
+    if not bcrypt.checkpw(current_password.encode('utf-8'), existing_user.UserPassword.encode('utf-8')):
+        raise HTTPException(status_code=401, detail="비밀번호가 일치하지 않습니다")
+
+    # 업데이트 필드 설정
+    update_fields = {}
+    if user.UserPassword:
+        hashed_password = bcrypt.hashpw(user.UserPassword.encode('utf-8'), bcrypt.gensalt())
+        update_fields['UserPassword'] = hashed_password.decode('utf-8')
+    if user.UserName:
+        update_fields['UserName'] = user.UserName
+    if user.UserSex:
+        update_fields['UserSex'] = user.UserSex
+    if user.UserBirth:
+        update_fields['UserBirth'] = user.UserBirth
+    if user.UserPhoneNumber:
+        update_fields['UserPhoneNumber'] = user.UserPhoneNumber
+
+    # 사용자 정보 업데이트
+    for field, value in update_fields.items():
+        # setattr로  existing_user필드 동적할당
+        setattr(existing_user, field, value)
+
+    session.commit()
+    session.refresh(existing_user)  # 수정된 사용자 정보를 새로고침
+    return UserUpdate.from_orm(existing_user)  # Pydantic 모델로 변환
+
+

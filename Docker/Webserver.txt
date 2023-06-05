@@ -1,0 +1,5 @@
+docker run -d -p 80:80 --name JeongHyeonWebServer -v C:/Users/이정현/Desktop/MoblieSystemProject/Webserver:/usr/share/nginx/html nginx
+
+
+웹서버 컨테이너 접속
+docker exec -it JeongHyeonWebServer /bin/bash
